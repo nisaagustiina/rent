@@ -5,11 +5,22 @@ namespace App\Http\Controllers\Api;
 use App\Models\Date;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\BaseResource;
 use App\Exceptions\InvalidOrderException;
+use App\Http\Requests\DateRequest;
+use App\Traits\ApiResponser;
+use App\Services\DateService;
 
 class DateController extends Controller
 {
+    use ApiResponser;
+
+    private $dateService;
+
+    public function __construct(
+        DateService $dateService
+    ){
+        $this->dateService = $dateService;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -17,7 +28,14 @@ class DateController extends Controller
      */
     public function index(Request $request)
     {
-        
+    $filter = [];
+      if($request->input('limit', '') != ''){
+        $filter['limit'] = $request->input('limit');
+      }
+
+      $data['data'] = $this->dateService->getDateList($filter, 10, false, [], ['id'=>'ASC']);
+
+      return $this->success($data);
     }
 
     /**
@@ -38,7 +56,7 @@ class DateController extends Controller
      */
     public function store(Request $request)
     {
-        //
+     
     }
 
     /**
