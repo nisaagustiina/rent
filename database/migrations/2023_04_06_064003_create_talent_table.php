@@ -24,6 +24,7 @@ class CreateTalentTable extends Migration
             $table->longText('social_media')->comment('json berisi social media talent');
             $table->text('message');
             $table->longText('service')->comment('json service');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

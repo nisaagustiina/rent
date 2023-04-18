@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Date;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Exceptions\InvalidOrderException;
@@ -28,12 +27,40 @@ class DateController extends Controller
      */
     public function index(Request $request)
     {
-    $filter = [];
+        
+      $filter = [];
+
+      if($request->input('offset', '') != ''){
+        $filter['offset'] = $request->input('offset');
+      }
+
       if($request->input('limit', '') != ''){
         $filter['limit'] = $request->input('limit');
       }
 
-      $data['data'] = $this->dateService->getDateList($filter, 10, false, [], ['id'=>'ASC']);
+      $q = $request->input('q', '');
+      if ($q != '') {
+          $filter['q'] = $q;
+      }
+
+      if($request->input('nama', '') != ''){
+        $filter['nama'] = $request->input('nama');
+      }
+
+      if($request->input('order_by', '') != ''){
+        $orderBy = $request->input('order_by');
+      }else{
+        $orderBy = 'id';
+      }
+
+      //orderType inc ASC|DESC
+      if($request->input('order_type', '') != ''){
+        $orderType = $request->input('order_type');
+      }else{
+        $orderType = 'asc';
+      }
+
+      $data = $this->dateService->getDateList($filter, false, 0, 10, false, [], [$orderBy => $orderType]);
 
       return $this->success($data);
     }
@@ -54,9 +81,9 @@ class DateController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(DateRequest $request)
     {
-     
+        return $this->dateService->storeDate($request);
     }
 
     /**
@@ -67,7 +94,8 @@ class DateController extends Controller
      */
     public function show(Date $date)
     {
-        //
+        $data = $this->dateService->getDate(['id' => $date->id],[]);
+        return $this->success($data);
     }
 
     /**
@@ -78,7 +106,7 @@ class DateController extends Controller
      */
     public function edit(Date $date)
     {
-        //
+
     }
 
     /**
@@ -88,9 +116,9 @@ class DateController extends Controller
      * @param  \App\Models\Date  $date
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Date $date)
+    public function update(DateRequest $request, Date $date)
     {
-        //
+        return $this->dateService->updateDate(['id' => $date->id], $request);
     }
 
     /**
@@ -101,6 +129,6 @@ class DateController extends Controller
      */
     public function destroy(Date $date)
     {
-        //
+        return $this->dateService->deleteDate(['id' => $date->id]);
     }
 }
